@@ -95,5 +95,8 @@ class ApiServices{
     deleteBrand(data){
         return axios.post(BASE_URL+this.getPath()+"/Brand/delete",data,{headers:this.getToken()})
     }
+    dashBoard(data){
+        return axios.post(BASE_URL+this.getPath()+"/dashBoard",data,{headers:this.getToken()})
+    }
 }
 export default new ApiServices()
