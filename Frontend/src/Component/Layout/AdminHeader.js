@@ -12,6 +12,7 @@ export default function AdminHeader(){
   }
     return(
       <>
+      
         <header id="site-header" className="fixed-top">
         <div className="container">
         <nav className="navbar navbar-expand-lg navbar-light">
@@ -35,7 +36,7 @@ export default function AdminHeader(){
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item active">
-                <Link className="nav-link" to={"/Admin"}>
+                <Link className="nav-link" to={"/Admin/dashboard"}>
                  DashBoard
                 </Link>
               </li>
@@ -67,14 +68,26 @@ export default function AdminHeader(){
 
               <li className="nav-item">
                 {
-                  !!token?
-              <Link onClick={logout} className="nav-link mr-2">
-               Logout
-              </Link>
-              :
-              <>
-            
-          </>}
+                              !!token?
+                              <>
+                              
+                              <a href="#" onClick={logout} className="nav-link ">
+                                Logout
+                              </a>
+                              </>
+                                :<>
+                                
+                                <Link to="/Login" className="nav-link @@Login__active">
+                                login
+                               </Link>
+                                <li className="nav-item @@Register__active">
+                                <Link className="nav-link" to={"/Register"}>
+                                Register
+                                </Link>
+                            </li>
+                            </>
+
+                            }
 
 
               </li>
