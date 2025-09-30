@@ -80,7 +80,7 @@ function App() {
             <Route path='/Contact' element={<Contact/>}/>
             <Route path='/user/viewBrand' element={<ViewUserBrand/>}/>
             
-            <Route path='/user/viewVehicle/:brandId' element={<PrivateRoute><ViewVehicleUser/></PrivateRoute>}/>
+            <Route path='/user/viewVehicle/:brandId' element={<ViewVehicleUser/>}/>
             <Route path='/user/viewService/:vehicleId' element={<ViewServiceUser/>}/>
             <Route path='/user/viewSingleService/:serviceId/:vehicleId' element={<ViewSingleService/>}/>
             
@@ -98,7 +98,7 @@ function App() {
          
           
           <Route path='/Admin' element={<AdminMaster/>}>
-            <Route path='/Admin' element={<DashBoard/>}/>
+            <Route path='/Admin/dashBoard' element={<DashBoard/>}/>
             <Route path='/Admin/Addvehicle'  element={<Addvehicle/>}/>
             <Route path='/Admin/Addbrand'  element={<AddBrand/>}/>
           
