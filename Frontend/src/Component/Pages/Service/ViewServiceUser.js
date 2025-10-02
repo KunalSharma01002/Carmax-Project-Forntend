@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useSearchParams } from "react-router-dom" // 👈 added useSearchParams
 import { FadeLoader } from "react-spinners"
 import { toast } from "react-toastify"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -10,10 +10,11 @@ export default function ViewServiceUser() {
   const [data, setData] = useState([])
   const [active, setActive] = useState("all")
   const scrollRef = useRef(null)
-  const { vehicleId } = useParams()   // 👈 get vehicleId from URL
+  const { vehicleId } = useParams()
+  const [searchParams] = useSearchParams()
+  const variant = searchParams.get("variant") || "" 
 
   const categories = [
-  
     { id: "Car Services", name: "Car Services", icon: "/assets/icons/car-service.png" },
     { id: "Denting Painting", name: "Denting Painting", icon: "/assets/icons/denting.png" },
     { id: "Mechanical Repairs", name: "Mechanical Repairs", icon: "/assets/icons/custom-repair.png" },
@@ -22,7 +23,11 @@ export default function ViewServiceUser() {
   ]
 
   useEffect(() => {
-    ApiServices.allUserService({ vehicleId })   // 👈 pass vehicleId to backend
+    ApiServices.allUserService({ vehicleId,
+  variant,
+  limit: 10,
+  currentPage: 0
+ })  // 👈 send both
       .then((res) => {
         if (res.data.success) {
           setData(res.data.data)
@@ -31,15 +36,10 @@ export default function ViewServiceUser() {
         }
       })
       .catch((err) => toast.error(err.message))
-  }, [vehicleId])
+  }, [vehicleId, variant]) // 👈 re-run when variant changes
 
-  const scrollLeft = () => {
-    if (scrollRef.current) scrollRef.current.scrollBy({ left: -250, behavior: "smooth" })
-  }
-
-  const scrollRight = () => {
-    if (scrollRef.current) scrollRef.current.scrollBy({ left: 250, behavior: "smooth" })
-  }
+  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -250, behavior: "smooth" })
+  const scrollRight = () => scrollRef.current?.scrollBy({ left: 250, behavior: "smooth" })
 
   return (
     <>
