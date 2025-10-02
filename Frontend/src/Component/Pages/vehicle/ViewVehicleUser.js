@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import ApiServices, { BASE_URL } from "../../../Services/ApiServices";
 
 export default function ViewVehicleUser() {
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [expanded, setExpanded] = useState({});
   const { brandId } = useParams();
+  const navigate = useNavigate();
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null); // 👈 for modal
 
   const page = parseInt(searchParams.get("page")) || 1;
   const type = searchParams.get("type") || "";
@@ -32,10 +34,6 @@ export default function ViewVehicleUser() {
       .catch((err) => toast.error(err.message));
   }, [page, type, brandId]);
 
-  const toggleExpand = (id) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
   const vehicleTypes = [
     { name: "All Types", value: "", icon: "bi-list-ul" },
     { name: "SUV", value: "SUV", icon: "bi-truck text-danger" },
@@ -45,6 +43,13 @@ export default function ViewVehicleUser() {
     { name: "Van", value: "Van", icon: "bi-truck-front text-info" },
     { name: "Electric", value: "Electric", icon: "bi-lightning-charge text-purple" },
   ];
+
+  
+  const handleVariantSelect = (Variant) => {
+    if (selectedVehicle) {
+      navigate(`/user/viewService/${selectedVehicle._id}?Variant=${Variant}`);
+    }
+  };
 
   return (
     <>
@@ -86,28 +91,27 @@ export default function ViewVehicleUser() {
           {data.length > 0 ? (
             data.map((el) => (
               <div className="col-lg-4 mb-2" key={el._id}>
-                <Link
-                  to={`/user/viewService/${el._id}`} // 👈 navigate to service page
-                  style={{ textDecoration: "none", color: "inherit" }}
+                <div
+                  className="card shadow-lg rounded-4 overflow-hidden"
+                  onClick={() => setSelectedVehicle(el)} // 👈 open modal
+                  style={{ cursor: "pointer" }}
                 >
-                  <div className="card shadow-lg rounded-4 overflow-hidden">
-                    <img
-                      src={BASE_URL + el.Image}
-                      alt={el.vehicleName}
-                      className="img-fluid w-100"
-                      style={{ height: "250px", objectFit: "cover" }}
-                    />
-                    <div className="p-4">
-                      <h5 className="fw-bold text-uppercase text-danger">
-                        {el.brandId?.brandName}
-                      </h5>
-                      <h6>
-                        {el.vehicleName}{" "}
-                        {el.vehicleType && `(${el.vehicleType})`}
-                      </h6>
-                    </div>
+                  <img
+                    src={BASE_URL + el.Image}
+                    alt={el.vehicleName}
+                    className="img-fluid w-100"
+                    style={{ height: "250px", objectFit: "cover" }}
+                  />
+                  <div className="p-4">
+                    <h5 className="fw-bold text-uppercase text-danger">
+                      {el.brandId?.brandName}
+                    </h5>
+                    <h6>
+                      {el.vehicleName}{" "}
+                      {el.vehicleType && `(${el.vehicleType})`}
+                    </h6>
                   </div>
-                </Link>
+                </div>
               </div>
             ))
           ) : (
@@ -162,6 +166,46 @@ export default function ViewVehicleUser() {
           </nav>
         )}
       </div>
+
+      {/* Variant Selection Modal */}
+      {selectedVehicle && (
+        <div className="modal fade show d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 shadow-lg">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Select Variant - {selectedVehicle.vehicleName}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedVehicle(null)}
+                ></button>
+              </div>
+              <div className="modal-body text-center">
+                <button
+                  className="btn btn-outline-primary m-2"
+                  onClick={() => handleVariantSelect("Petrol")}
+                >
+                  Petrol
+                </button>
+                <button
+                  className="btn btn-outline-success m-2"
+                  onClick={() => handleVariantSelect("Diesel")}
+                >
+                  Diesel
+                </button>
+                <button
+                  className="btn btn-outline-warning m-2"
+                  onClick={() => handleVariantSelect("CNG")}
+                >
+                  CNG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
