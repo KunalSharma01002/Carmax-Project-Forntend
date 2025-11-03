@@ -9,12 +9,12 @@ export default function ViewVehicleUser() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { brandId } = useParams();
   const navigate = useNavigate();
-
+  const variant=['Petrol','Desiel','CNG'];
   const [selectedVehicle, setSelectedVehicle] = useState(null); // 👈 for modal
-
+  
   const page = parseInt(searchParams.get("page")) || 1;
   const type = searchParams.get("type") || "";
-
+  
   useEffect(() => {
     ApiServices.allVehicle({
       currentPage: page - 1,
@@ -45,10 +45,12 @@ export default function ViewVehicleUser() {
   ];
 
   
-  const handleVariantSelect = (Variant) => {
-    if (selectedVehicle) {
-      navigate(`/user/viewService/${selectedVehicle._id}?Variant=${Variant}`);
-    }
+  const handleVariantSelect = (variant) => {
+   
+   if (selectedVehicle) {
+  navigate(`/user/viewService/${selectedVehicle._id}?variant=${variant}`);
+}
+
   };
 
   return (
