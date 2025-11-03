@@ -39,22 +39,23 @@ import ViewUserBrand from './Component/Pages/Brand/ViewUserBrand';
 import PrivateRoute from './Component/Layout/PrivateRoute';
 import Header from './Component/Layout/Header';
 import Footer from './Component/Layout/Footer';
+import { View } from 'lucide-react';
 
-// function MyRoute({ children }) {
-//   const location = useLocation();
+function MyRoute({ children }) {
+  const location = useLocation();
 
-//   // Pages where header/footer should be hidden
-//   const hideHeaderFooter = ["/Login", "/Register"];
+  // Pages where header/footer should be hidden
+  const hideHeaderFooter = ["/Login", "/Register"];
 
-//   return (
-//     <>
-//       {!hideHeaderFooter.includes(location.pathname) && <Header/>}
+  return (
+    <>
+      {!hideHeaderFooter.includes(location.pathname) && <Header/>}
       
-//       {children}
-//       {!hideHeaderFooter.includes(location.pathname) && <Footer/>}
-//     </>
-//   );
-// }
+      {children}
+      {!hideHeaderFooter.includes(location.pathname) && <Footer/>}
+    </>
+  );
+}
 
 
 
@@ -72,7 +73,7 @@ function App() {
      
         <Routes>
 
-          <Route path='/' element={<Master/>}>
+          <Route path='' element={<Master/>}>
 
             <Route path='/Home' element={<Index/>}/>
             <Route path='/About' element={<About/>}/>
@@ -105,13 +106,13 @@ function App() {
             <Route path='/Admin/Addservice' element={<AddService/>}/>
             <Route path='/Admin/Addproduct'  element={<AddProduct/>}/>
             <Route path='/Admin/Viewproduct' element={<ViewProduct/>}/>
-            <Route path='/Admin/Viewvehicle' element={<ViewVehicle/>}/>
+            <Route path='/Admin/Viewvehicle$/{brand._id}' element={<ViewVehicle/>}/>
             <Route path='/Admin/Viewservice' element={<ViewService/>}/>
             <Route path='/Admin/Viewbrand' element={<ViewBrand/>}/>
             <Route path='/Admin/EditVehicle/:id' element={<EditVehicle/>}/>
             <Route path='/Admin/EditService/:id' element={<EditService/>}/>
             <Route path='/Admin/ViewBooking' element={<ViewBooking/>}/>
-          
+             <Route path='/Admin/view' element={<View/>}/>
 
             
 
@@ -120,6 +121,7 @@ function App() {
           
            <Route path='/Login' element={<Login/>}/>
             <Route path='/Register' element={<Register/>}/>
+            
           
 
           </Routes>
@@ -130,10 +132,10 @@ function App() {
         </BrowserRouter>
 
         <ToastContainer/>
-  
+       
         </>
          
-         
+        
         
         
         
