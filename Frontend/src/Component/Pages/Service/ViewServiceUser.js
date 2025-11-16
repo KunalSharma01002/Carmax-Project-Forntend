@@ -22,11 +22,15 @@ export default function ViewServiceUser() {
     { id: "Car Cleaning", name: "Car Cleaning", icon: "/assets/icons/cleaning.png" },
   ]
 
-  useEffect(() => {
-    ApiServices.allUserService({ vehicleId,
-  variant,
-  limit: 10,
-  currentPage: 0
+useEffect(() => {
+  allUserService();
+}, [vehicleId, variant]);
+
+ const allUserService = async () => {
+    ApiServices.allUserService({   vehicleId: vehicleId,
+    variant: variant, 
+    limit: 10,
+   currentPage: 0
  })  // 👈 send both
       .then((res) => {
         if (res.data.success) {
@@ -36,7 +40,7 @@ export default function ViewServiceUser() {
         }
       })
       .catch((err) => toast.error(err.message))
-  }, [vehicleId, variant]) // 👈 re-run when variant changes
+  };
 
   const scrollLeft = () => scrollRef.current?.scrollBy({ left: -250, behavior: "smooth" })
   const scrollRight = () => scrollRef.current?.scrollBy({ left: 250, behavior: "smooth" })
@@ -103,11 +107,13 @@ export default function ViewServiceUser() {
                       src={BASE_URL + el?.Image}
                       alt={el?.serviceName}
                       className="card-img-top"
-                      style={{ height: "220px", objectFit: "cover" }}
+                      style={{ 
+                        width:"100%",height: "25rem", objectFit: "cover",display:" inline-block" }}
                     />
                     <div className="card-body d-flex flex-column">
                       <h5 className="card-title fw-bold mb-2">{el?.serviceName}</h5>
                       <h6 className="text-danger fw-semibold mb-3">₹ {el?.price}</h6>
+                      <h6 className="text-danger fw-semibold mb-3">{el?.variant}</h6>
                       <p className="text-muted small mb-4">
                         {el?.description?.length > 60
                           ? el?.description.substring(0, 60) + "..."
