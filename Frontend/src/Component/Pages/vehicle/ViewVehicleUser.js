@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ApiServices, { BASE_URL } from "../../../Services/ApiServices";
+import "../../../Component/Style/Card.css";
 
 export default function ViewVehicleUser() {
+  const [brands, setBrands] = useState([]);
+  const [showBrandModal, setShowBrandModal] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { brandId } = useParams();
   const navigate = useNavigate();
-  const variant=['Petrol','Desiel','CNG'];
-  const [selectedVehicle, setSelectedVehicle] = useState(null); // 👈 for modal
-  
+
   const page = parseInt(searchParams.get("page")) || 1;
   const type = searchParams.get("type") || "";
-  
+
+  // 🏷️ Fetch all brands
   useEffect(() => {
+    ApiServices.allBrand()
+      .then((res) => {
+        if (res.data.success) {
+          setBrands(res.data.data);
+        } else {
+          toast.error(res.data.message);
+        }
+      })
+      .catch((err) => toast.error(err.message));
+  }, []);
+
+  // 🚗 Fetch all vehicles for selected brand
+  useEffect(() => {
+    if (!brandId) return;
     ApiServices.allVehicle({
       currentPage: page - 1,
       limit: 6,
@@ -44,26 +62,88 @@ export default function ViewVehicleUser() {
     { name: "Electric", value: "Electric", icon: "bi-lightning-charge text-purple" },
   ];
 
-  
-  const handleVariantSelect = (variant) => {
-   
-   if (selectedVehicle) {
-  navigate(`/user/viewService/${selectedVehicle._id}?variant=${variant}`);
-}
-
+  const handleBrandSelect = (brand) => {
+    setShowBrandModal(false);
+    navigate(`/user/viewVehicle/${brand._id}`);
   };
+
+  const handleVariantSelect = (variant) => {
+    if (selectedVehicle) {
+      navigate(`/user/viewService/${selectedVehicle._id}?variant=${variant}`);
+    }
+  };
+
+  const filteredBrands = brands.filter((b) =>
+    b.brandName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
-      {/* Header */}
+      {/* Brand Selection Modal */}
+      {showBrandModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ background: "rgba(0,0,0,0.6)" }}
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content rounded-4 shadow-lg">
+              <div className="modal-header">
+                <h5 className="modal-title fw-bold">Select Brand</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowBrandModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  className="form-control mb-3"
+                  placeholder="Search your car"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+                <div className="row text-center">
+                  {filteredBrands.map((brand) => (
+                    <div
+                      key={brand._id}
+                      className="col-4 col-md-2 mb-4"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleBrandSelect(brand)}
+                    >
+                      <img
+                        src={BASE_URL + brand.Logo}
+                        alt={brand.brandName}
+                        style={{
+                          maxWidth: "60px",
+                          maxHeight: "40px",
+                          objectFit: "contain",
+                        }}
+                      />
+                      <p className="small mt-2 mb-0 fw-semibold text-truncate">
+                        {brand.brandName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Vehicle Section */}
       <section className="w3l-about-breadcrumb position-relative text-center">
         <div className="breadcrumb-bg breadcrumb-bg-about py-sm-5 py-4">
           <div className="container py-lg-5 py-3">
-            <h2 className="title">Vehicle</h2>
+            <h2 className="title">Vehicles</h2>
             <ul className="breadcrumbs-custom-path mt-2">
               <li><a href="/">Home</a></li>
               <li className="active">
-                <span className="fa fa-angle-double-right mx-2" /> Vehicle
+                <span className="fa fa-angle-double-right mx-2" /> Vehicles
               </li>
             </ul>
           </div>
@@ -79,9 +159,9 @@ export default function ViewVehicleUser() {
               className={`btn rounded-pill me-2 ${
                 type === t.value ? "btn-dark text-white" : "btn-outline-dark"
               }`}
-              onClick={() => {
-                setSearchParams({ ...(t.value && { type: t.value }), page: 1 });
-              }}
+              onClick={() =>
+                setSearchParams({ ...(t.value && { type: t.value }), page: 1 })
+              }
             >
               <i className={`bi ${t.icon} me-1`}></i> {t.name}
             </button>
@@ -92,10 +172,10 @@ export default function ViewVehicleUser() {
         <div className="row">
           {data.length > 0 ? (
             data.map((el) => (
-              <div className="col-lg-4 mb-2" key={el._id}>
+              <div className="col-lg-4 mb-3" key={el._id}>
                 <div
                   className="card shadow-lg rounded-4 overflow-hidden"
-                  onClick={() => setSelectedVehicle(el)} // 👈 open modal
+                  onClick={() => setSelectedVehicle(el)}
                   style={{ cursor: "pointer" }}
                 >
                   <img
@@ -105,7 +185,7 @@ export default function ViewVehicleUser() {
                     style={{ height: "250px", objectFit: "cover" }}
                   />
                   <div className="p-4">
-                    <h5 className="fw-bold text-uppercase text-danger">
+                    <h5 className="fw-bold text-danger text-uppercase">
                       {el.brandId?.brandName}
                     </h5>
                     <h6>
@@ -139,8 +219,8 @@ export default function ViewVehicleUser() {
               )}
               {[...Array(totalPages)].map((_, i) => (
                 <li
-                  className={`page-item ${page === i + 1 ? "active" : ""}`}
                   key={i}
+                  className={`page-item ${page === i + 1 ? "active" : ""}`}
                 >
                   <button
                     className="page-link"
@@ -171,7 +251,12 @@ export default function ViewVehicleUser() {
 
       {/* Variant Selection Modal */}
       {selectedVehicle && (
-        <div className="modal fade show d-block" tabIndex="-1" role="dialog">
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ background: "rgba(0,0,0,0.6)" }}
+        >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 shadow-lg">
               <div className="modal-header">
